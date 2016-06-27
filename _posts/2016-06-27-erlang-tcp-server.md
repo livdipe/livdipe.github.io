@@ -250,6 +250,32 @@ start_server_listener(Pid) ->
 }.
 ```
 
+### 目录结构
+```
+./tcp_server  
+./tcp_server/ebin/  
+./tcp_server/ebin/tcp_server.app  
+./tcp_server/src/tcp_server_app.erl  
+./tcp_server/src/tcp_server_sup.erl  
+./tcp_server/src/tcp_server_listener.erl  
+./tcp_server/src/tcp_server_handler.erl
+```
+
+### 编译
+```
+cd tcp_server/src
+for f in tcp*.erl; do erlc -o ../ebin $f; done
+```
+
+### 运行程序
+```
+erl -pa ebin
+
+application:start(tcp_server).
+
+observer:start().
+```
+
 ### python 测试程序
 ```
 import socket
@@ -265,4 +291,38 @@ a1, a2 = struct.unpack("ii", s.recv(1024))
 print a1, a2
 # print s.recv(1024)
 s.close
+```
+
+### unity测试程序
+```
+using UnityEngine;
+using System.Collections;
+using System.Net.Sockets;
+using System.Text;
+
+public class SimpleClient : MonoBehaviour 
+{
+    TcpClient clientSocket = new TcpClient();
+
+    void Start () 
+    {
+        clientSocket.Connect("127.0.0.1", 2222);
+    }
+    
+    void Update () 
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            NetworkStream stream = clientSocket.GetStream();
+            byte[] outStream = Encoding.UTF8.GetBytes("helloworld");
+            stream.Write(outStream, 0, outStream.Length);
+
+            byte[] inStream = new byte[1024];
+            Debug.Log(clientSocket.ReceiveBufferSize);
+            stream.Read(inStream, 0, 1024);
+            string returndata = Encoding.UTF8.GetString(inStream);
+            Debug.Log(returndata);
+        }
+    }
+}
 ```
